@@ -54,17 +54,19 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set Tag
+        run: echo "CLEAN_TAG=${GITHUB_REF_NAME//\//-}" >> $GITHUB_ENV
+
       - name: Build and push release Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          platforms: linux/amd64
+          #,linux/arm64,linux/arm/v7
           push: true
           tags: |
-            cy01/blackhole:latest
-            cy01/blackhole:${{ env.tag_name }}
             ghcr.io/${{ github.repository_owner }}/decypharr:latest
-            ghcr.io/${{ github.repository_owner }}/decypharr:${{ env.tag_name }}
+            ghcr.io/${{ github.repository }}:${{ env.CLEAN_TAG }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
           build-args: |
