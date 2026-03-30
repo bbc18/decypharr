@@ -9,6 +9,7 @@ class TorrentDashboard {
             selectedCategory: '',
             selectedState: '',
             nameFilter: '',
+            compiledNameFilter: null,
             sortBy: 'added_on',
             itemsPerPage: 20,
             currentPage: 1,
@@ -210,9 +211,13 @@ class TorrentDashboard {
             filtered = filtered.filter(t => t.state?.toLowerCase() === this.state.selectedState.toLowerCase());
         }
 
-        if (this.state.nameFilter) {
-            const searchTerm = this.state.nameFilter.toLowerCase();
-            filtered = filtered.filter(t => t.name?.toLowerCase().includes(searchTerm));
+        if (this.state.compiledNameFilter) {
+            if (this.state.compiledNameFilter instanceof RegExp) {
+                filtered = filtered.filter(t => this.state.compiledNameFilter.test(t.name || ''));
+            } else {
+                const searchTerm = this.state.compiledNameFilter;
+                filtered = filtered.filter(t => t.name?.toLowerCase().includes(searchTerm));
+            }
         }
 
         // Sort torrents
@@ -461,9 +466,28 @@ class TorrentDashboard {
             this.state.selectedState = value;
         } else if (type === 'name') {
             this.state.nameFilter = value;
+            this.state.compiledNameFilter = this.compileNameFilter(value);
         }
         this.state.currentPage = 1;
         this.updateUI();
+    }
+
+    compileNameFilter(value) {
+        if (!value) return null;
+
+        // Check if it's a regex pattern (e.g., /pattern/i)
+        const match = value.match(/^\/(.+)\/([gimuy]*)$/);
+        if (match) {
+            try {
+                return new RegExp(match[1], match[2]);
+            } catch (e) {
+                // If regex is invalid, fallback to plain text search
+                console.warn('Invalid regex pattern:', e);
+            }
+        }
+
+        // Plain text search
+        return value.toLowerCase();
     }
 
     setSort(sortBy) {
