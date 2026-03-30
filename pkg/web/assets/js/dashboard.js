@@ -8,6 +8,7 @@ class TorrentDashboard {
             filteredTorrents: [],
             selectedCategory: '',
             selectedState: '',
+            nameFilter: '',
             sortBy: 'added_on',
             itemsPerPage: 20,
             currentPage: 1,
@@ -23,6 +24,7 @@ class TorrentDashboard {
             batchDeleteBtn: document.getElementById('batchDeleteBtn'),
             batchDeleteDebridBtn: document.getElementById('batchDeleteDebridBtn'),
             refreshBtn: document.getElementById('refreshBtn'),
+            nameFilter: document.getElementById('nameFilter'),
             torrentContextMenu: document.getElementById('torrentContextMenu'),
             paginationControls: document.getElementById('paginationControls'),
             paginationInfo: document.getElementById('paginationInfo'),
@@ -53,6 +55,11 @@ class TorrentDashboard {
         this.refs.categoryFilter.addEventListener('change', (e) => this.setFilter('category', e.target.value));
         this.refs.stateFilter.addEventListener('change', (e) => this.setFilter('state', e.target.value));
         this.refs.sortSelector.addEventListener('change', (e) => this.setSort(e.target.value));
+
+        // Name Filter
+        if (this.refs.nameFilter) {
+            this.refs.nameFilter.addEventListener('input', (e) => this.setFilter('name', e.target.value));
+        }
 
         // Context menu
         this.bindContextMenu();
@@ -201,6 +208,11 @@ class TorrentDashboard {
 
         if (this.state.selectedState) {
             filtered = filtered.filter(t => t.state?.toLowerCase() === this.state.selectedState.toLowerCase());
+        }
+
+        if (this.state.nameFilter) {
+            const searchTerm = this.state.nameFilter.toLowerCase();
+            filtered = filtered.filter(t => t.name?.toLowerCase().includes(searchTerm));
         }
 
         // Sort torrents
@@ -447,6 +459,8 @@ class TorrentDashboard {
             this.state.selectedCategory = value;
         } else if (type === 'state') {
             this.state.selectedState = value;
+        } else if (type === 'name') {
+            this.state.nameFilter = value;
         }
         this.state.currentPage = 1;
         this.updateUI();
