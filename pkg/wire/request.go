@@ -12,11 +12,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/sirrobot01/decypharr/internal/config"
-	"github.com/sirrobot01/decypharr/internal/request"
-	"github.com/sirrobot01/decypharr/internal/utils"
-	"github.com/sirrobot01/decypharr/pkg/arr"
-	debridTypes "github.com/sirrobot01/decypharr/pkg/debrid/types"
+	"github.com/bbc18/decypharr/internal/config"
+	"github.com/bbc18/decypharr/internal/request"
+	"github.com/bbc18/decypharr/internal/utils"
+	"github.com/bbc18/decypharr/pkg/arr"
+	debridTypes "github.com/bbc18/decypharr/pkg/debrid/types"
 )
 
 type ImportType string

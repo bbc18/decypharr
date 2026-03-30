@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-co-op/gocron/v2"
-	"github.com/sirrobot01/decypharr/internal/utils"
+	"github.com/bbc18/decypharr/internal/utils"
 	"time"
 )
 

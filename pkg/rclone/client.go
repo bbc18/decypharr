@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/sirrobot01/decypharr/internal/config"
+	"github.com/bbc18/decypharr/internal/config"
 )
 
 // Mount creates a mount using the rclone RC API with retry logic

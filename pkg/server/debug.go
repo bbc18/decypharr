@@ -6,9 +6,9 @@ import (
 	"runtime"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/sirrobot01/decypharr/internal/request"
-	debridTypes "github.com/sirrobot01/decypharr/pkg/debrid/types"
-	"github.com/sirrobot01/decypharr/pkg/wire"
+	"github.com/bbc18/decypharr/internal/request"
+	debridTypes "github.com/bbc18/decypharr/pkg/debrid/types"
+	"github.com/bbc18/decypharr/pkg/wire"
 )
 
 func (s *Server) handleIngests(w http.ResponseWriter, r *http.Request) {

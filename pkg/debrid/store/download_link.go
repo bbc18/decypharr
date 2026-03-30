@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"sync/atomic"
 
-	"github.com/sirrobot01/decypharr/internal/utils"
-	"github.com/sirrobot01/decypharr/pkg/debrid/types"
+	"github.com/bbc18/decypharr/internal/utils"
+	"github.com/bbc18/decypharr/pkg/debrid/types"
 )
 
 const (

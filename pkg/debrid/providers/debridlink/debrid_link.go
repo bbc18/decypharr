@@ -7,12 +7,12 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
-	"github.com/sirrobot01/decypharr/internal/config"
-	"github.com/sirrobot01/decypharr/internal/logger"
-	"github.com/sirrobot01/decypharr/internal/request"
-	"github.com/sirrobot01/decypharr/internal/utils"
-	"github.com/sirrobot01/decypharr/pkg/debrid/account"
-	"github.com/sirrobot01/decypharr/pkg/debrid/types"
+	"github.com/bbc18/decypharr/internal/config"
+	"github.com/bbc18/decypharr/internal/logger"
+	"github.com/bbc18/decypharr/internal/request"
+	"github.com/bbc18/decypharr/internal/utils"
+	"github.com/bbc18/decypharr/pkg/debrid/account"
+	"github.com/bbc18/decypharr/pkg/debrid/types"
 	"go.uber.org/ratelimit"
 
 	"net/http"

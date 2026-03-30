@@ -5,9 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/sirrobot01/decypharr/pkg/arr"
-	"github.com/sirrobot01/decypharr/pkg/debrid/common"
-	"github.com/sirrobot01/decypharr/pkg/debrid/store"
+	"github.com/bbc18/decypharr/pkg/arr"
+	"github.com/bbc18/decypharr/pkg/debrid/common"
+	"github.com/bbc18/decypharr/pkg/debrid/store"
 )
 
 func fileIsSymlinked(file string) bool {

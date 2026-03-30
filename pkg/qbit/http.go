@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/sirrobot01/decypharr/internal/config"
-	"github.com/sirrobot01/decypharr/internal/request"
-	"github.com/sirrobot01/decypharr/pkg/arr"
+	"github.com/bbc18/decypharr/internal/config"
+	"github.com/bbc18/decypharr/internal/request"
+	"github.com/bbc18/decypharr/pkg/arr"
 )
 
 func (q *QBit) handleLogin(w http.ResponseWriter, r *http.Request) {

@@ -6,8 +6,8 @@ import (
 	"sync/atomic"
 
 	"github.com/puzpuzpuz/xsync/v4"
-	"github.com/sirrobot01/decypharr/internal/request"
-	"github.com/sirrobot01/decypharr/pkg/debrid/types"
+	"github.com/bbc18/decypharr/internal/request"
+	"github.com/bbc18/decypharr/pkg/debrid/types"
 )
 
 type Account struct {

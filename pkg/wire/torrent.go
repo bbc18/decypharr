@@ -9,10 +9,10 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/sirrobot01/decypharr/internal/request"
-	"github.com/sirrobot01/decypharr/internal/utils"
-	debridTypes "github.com/sirrobot01/decypharr/pkg/debrid"
-	"github.com/sirrobot01/decypharr/pkg/debrid/types"
+	"github.com/bbc18/decypharr/internal/request"
+	"github.com/bbc18/decypharr/internal/utils"
+	debridTypes "github.com/bbc18/decypharr/pkg/debrid"
+	"github.com/bbc18/decypharr/pkg/debrid/types"
 )
 
 func (s *Store) AddTorrent(ctx context.Context, importReq *ImportRequest) error {

@@ -2,8 +2,8 @@ package common
 
 import (
 	"github.com/rs/zerolog"
-	"github.com/sirrobot01/decypharr/pkg/debrid/account"
-	"github.com/sirrobot01/decypharr/pkg/debrid/types"
+	"github.com/bbc18/decypharr/pkg/debrid/account"
+	"github.com/bbc18/decypharr/pkg/debrid/types"
 )
 
 type Client interface {

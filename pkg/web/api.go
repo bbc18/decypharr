@@ -6,17 +6,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sirrobot01/decypharr/pkg/wire"
+	"github.com/bbc18/decypharr/pkg/wire"
 	"golang.org/x/crypto/bcrypt"
 
 	"encoding/json"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/sirrobot01/decypharr/internal/config"
-	"github.com/sirrobot01/decypharr/internal/request"
-	"github.com/sirrobot01/decypharr/internal/utils"
-	"github.com/sirrobot01/decypharr/pkg/arr"
-	"github.com/sirrobot01/decypharr/pkg/version"
+	"github.com/bbc18/decypharr/internal/config"
+	"github.com/bbc18/decypharr/internal/request"
+	"github.com/bbc18/decypharr/internal/utils"
+	"github.com/bbc18/decypharr/pkg/arr"
+	"github.com/bbc18/decypharr/pkg/version"
 )
 
 func (wb *Web) handleGetArrs(w http.ResponseWriter, r *http.Request) {

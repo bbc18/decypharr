@@ -9,9 +9,9 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/sirrobot01/decypharr/internal/config"
-	"github.com/sirrobot01/decypharr/pkg/arr"
-	"github.com/sirrobot01/decypharr/pkg/wire"
+	"github.com/bbc18/decypharr/internal/config"
+	"github.com/bbc18/decypharr/pkg/arr"
+	"github.com/bbc18/decypharr/pkg/wire"
 )
 
 type contextKey string

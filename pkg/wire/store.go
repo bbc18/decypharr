@@ -8,12 +8,12 @@ import (
 
 	"github.com/go-co-op/gocron/v2"
 	"github.com/rs/zerolog"
-	"github.com/sirrobot01/decypharr/internal/config"
-	"github.com/sirrobot01/decypharr/internal/logger"
-	"github.com/sirrobot01/decypharr/pkg/arr"
-	"github.com/sirrobot01/decypharr/pkg/debrid"
-	"github.com/sirrobot01/decypharr/pkg/rclone"
-	"github.com/sirrobot01/decypharr/pkg/repair"
+	"github.com/bbc18/decypharr/internal/config"
+	"github.com/bbc18/decypharr/internal/logger"
+	"github.com/bbc18/decypharr/pkg/arr"
+	"github.com/bbc18/decypharr/pkg/debrid"
+	"github.com/bbc18/decypharr/pkg/rclone"
+	"github.com/bbc18/decypharr/pkg/repair"
 )
 
 type Store struct {

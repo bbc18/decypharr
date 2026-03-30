@@ -14,10 +14,10 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/sirrobot01/decypharr/pkg/debrid/types"
+	"github.com/bbc18/decypharr/pkg/debrid/types"
 
 	"github.com/cavaliergopher/grab/v3"
-	"github.com/sirrobot01/decypharr/internal/utils"
+	"github.com/bbc18/decypharr/internal/utils"
 )
 
 // Multi-season detection patterns

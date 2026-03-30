@@ -19,10 +19,10 @@ import (
 	"time"
 
 	"github.com/puzpuzpuz/xsync/v4"
-	"github.com/sirrobot01/decypharr/pkg/debrid/common"
-	"github.com/sirrobot01/decypharr/pkg/rclone"
+	"github.com/bbc18/decypharr/pkg/debrid/common"
+	"github.com/bbc18/decypharr/pkg/rclone"
 
-	"github.com/sirrobot01/decypharr/pkg/debrid/types"
+	"github.com/bbc18/decypharr/pkg/debrid/types"
 	"golang.org/x/sync/singleflight"
 
 	"encoding/json"
@@ -30,9 +30,9 @@ import (
 
 	"github.com/go-co-op/gocron/v2"
 	"github.com/rs/zerolog"
-	"github.com/sirrobot01/decypharr/internal/config"
-	"github.com/sirrobot01/decypharr/internal/logger"
-	"github.com/sirrobot01/decypharr/internal/utils"
+	"github.com/bbc18/decypharr/internal/config"
+	"github.com/bbc18/decypharr/internal/logger"
+	"github.com/bbc18/decypharr/internal/utils"
 )
 
 type WebDavFolderNaming string
