@@ -6,9 +6,9 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/rs/zerolog"
-	"github.com/sirrobot01/decypharr/internal/config"
-	"github.com/sirrobot01/decypharr/internal/logger"
-	"github.com/sirrobot01/decypharr/pkg/wire"
+	"github.com/bbc18/decypharr/internal/config"
+	"github.com/bbc18/decypharr/internal/logger"
+	"github.com/bbc18/decypharr/pkg/wire"
 )
 
 var restartFunc func()

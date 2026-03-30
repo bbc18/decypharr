@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/rs/zerolog"
-	"github.com/sirrobot01/decypharr/internal/config"
+	"github.com/bbc18/decypharr/internal/config"
 )
 
 // Mount represents a mount using the rclone RC client

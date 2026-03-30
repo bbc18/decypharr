@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sirrobot01/decypharr/internal/utils"
-	"github.com/sirrobot01/decypharr/pkg/arr"
-	"github.com/sirrobot01/decypharr/pkg/wire"
+	"github.com/bbc18/decypharr/internal/utils"
+	"github.com/bbc18/decypharr/pkg/arr"
+	"github.com/bbc18/decypharr/pkg/wire"
 )
 
 // All torrent-related helpers goes here
@@ -62,8 +62,8 @@ func (q *QBit) RefreshTorrent(t *wire.Torrent) bool {
 func (q *QBit) GetTorrentProperties(t *wire.Torrent) *TorrentProperties {
 	return &TorrentProperties{
 		AdditionDate:           t.AddedOn,
-		Comment:                "Debrid Blackhole <https://github.com/sirrobot01/decypharr>",
-		CreatedBy:              "Debrid Blackhole <https://github.com/sirrobot01/decypharr>",
+		Comment:                "Debrid Blackhole <https://github.com/bbc18/decypharr>",
+		CreatedBy:              "Debrid Blackhole <https://github.com/bbc18/decypharr>",
 		CreationDate:           t.AddedOn,
 		DlLimit:                -1,
 		UpLimit:                -1,

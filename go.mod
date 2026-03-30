@@ -1,4 +1,4 @@
-module github.com/sirrobot01/decypharr
+module github.com/bbc18/decypharr
 
 go 1.24.0
 

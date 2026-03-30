@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/sirrobot01/decypharr/internal/config"
+	"github.com/bbc18/decypharr/internal/config"
 )
 
 func (wb *Web) setupMiddleware(next http.Handler) http.Handler {

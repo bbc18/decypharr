@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sirrobot01/decypharr/pkg/debrid/types"
+	"github.com/bbc18/decypharr/pkg/debrid/types"
 )
 
 type fileInfo struct {

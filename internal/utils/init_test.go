@@ -3,7 +3,7 @@ package utils
 import (
 	"os"
 	"testing"
-	"github.com/sirrobot01/decypharr/internal/config"
+	"github.com/bbc18/decypharr/internal/config"
 )
 
 func TestMain(m *testing.M) {

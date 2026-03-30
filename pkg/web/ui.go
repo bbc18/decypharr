@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/sirrobot01/decypharr/internal/config"
+	"github.com/bbc18/decypharr/internal/config"
 	"golang.org/x/crypto/bcrypt"
 )
 

@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/sirrobot01/decypharr/pkg/debrid/store"
-	"github.com/sirrobot01/decypharr/pkg/debrid/types"
+	"github.com/bbc18/decypharr/pkg/debrid/store"
+	"github.com/bbc18/decypharr/pkg/debrid/types"
 )
 
 const (

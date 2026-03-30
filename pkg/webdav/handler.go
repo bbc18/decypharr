@@ -13,13 +13,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sirrobot01/decypharr/pkg/debrid/types"
+	"github.com/bbc18/decypharr/pkg/debrid/types"
 	"golang.org/x/net/webdav"
 
 	"github.com/rs/zerolog"
-	"github.com/sirrobot01/decypharr/internal/utils"
-	"github.com/sirrobot01/decypharr/pkg/debrid/store"
-	"github.com/sirrobot01/decypharr/pkg/version"
+	"github.com/bbc18/decypharr/internal/utils"
+	"github.com/bbc18/decypharr/pkg/debrid/store"
+	"github.com/bbc18/decypharr/pkg/version"
 )
 
 const DeleteAllBadTorrentKey = "DELETE_ALL_BAD_TORRENTS"

@@ -16,8 +16,8 @@ import (
 	"time"
 
 	"github.com/anacrolix/torrent/metainfo"
-	"github.com/sirrobot01/decypharr/internal/logger"
-	"github.com/sirrobot01/decypharr/internal/request"
+	"github.com/bbc18/decypharr/internal/logger"
+	"github.com/bbc18/decypharr/internal/request"
 )
 
 var (
