@@ -22,22 +22,38 @@ import (
 
 // Multi-season detection patterns
 var (
-	// Pre-compiled patterns for multi-season removal
-	multiSeasonPatternsToRemove = []*regexp.Regexp{
-		regexp.MustCompile(`(?i)\(?\s*s\d{1,2}\s*-\s*s?\d{1,2}\s*\)?`),                 // S01-08, S01-S08, S01 - S08, S01 - 11
-		regexp.MustCompile(`(?i)\(?\s*seasons?\s*\d{1,2}\s*(?:-|to)\s*\d{1,2}\s*\)?`), // Season 1-8, Seasons 1 - 8, seasons 1 to 3, (Season 1-3)
-		regexp.MustCompile(`(?i)\(?\s*\d{1,2}\s*-\s*\d{1,2}\s*seasons?\s*\)?`),        // 1-6 Seasons
-		regexp.MustCompile(`(?i)complete\.?series`),
-		regexp.MustCompile(`(?i)all\.?seasons?`),
-		regexp.MustCompile(`(?i)\+\s*(?:extras|specials)`),
+	// Pre-compiled patterns for multi-season cleanup
+	multiSeasonCleanups = []*regexp.Regexp{
+		// Matches season ranges using 'S': S01-S08, S1-8, S01 - 08
+		regexp.MustCompile(`(?i)\bs\d{1,2}\s*-\s*s?\d{1,2}\b`),
+		// Matches season ranges using 'Season': Season 1-8, Seasons 1 to 3
+		regexp.MustCompile(`(?i)\bseasons?\.?\s*\d{1,2}\s*(?:-|to)\s*\d{1,2}\b`),
+		// Matches reverse season ranges: 1-6 Seasons
+		regexp.MustCompile(`(?i)\b\d{1,2}\s*(?:-|to)\s*\d{1,2}\s*seasons?\b`),
+		// Matches strings representing the entirety of a show: Complete Series
+		regexp.MustCompile(`(?i)\bcomplete\.?\s*series\b`),
+		// Matches strings representing the entirety of a show: All Seasons
+		regexp.MustCompile(`(?i)\ball\.?\s*seasons?\b`),
+		// Matches extra/special content descriptors: + Extras, + Specials
+		regexp.MustCompile(`(?i)\+\s*(?:extras|specials)\b`),
+		// Matches year ranges representing seasons: 2004-2010 or (1999-2002)
+		regexp.MustCompile(`(?i)\(?\b\d{4}\s*-\s*\d{4}\b\)?`),
+		// Matches trailing/single season text to remove artifacts: Season 1, Season 02
+		regexp.MustCompile(`(?i)\bseason\.?\s*\d{1,2}\b`),
+		// Matches single season codes to remove artifacts: S01, S1
+		regexp.MustCompile(`(?i)\bs\d{1,2}\b`),
 	}
 
-	// Pre-compiled cleanup patterns
-	cleanupSpaces        = regexp.MustCompile(`\s+`)
-	cleanupEmptyParens   = regexp.MustCompile(`\(\s*\)`)
-	cleanupEmptyParensDash = regexp.MustCompile(`\(\s*-\s*\)`)
-	cleanupTrailingDash  = regexp.MustCompile(`\s*-\s*$`)
-	cleanupLeadingDash   = regexp.MustCompile(`^\s*-\s*`)
+	// Pattern for empty parentheses left after stripping content, e.g. "()" or "(  )"
+	emptyParensPattern   = regexp.MustCompile(`\(\s*\)`)
+	// Pattern for empty brackets left after stripping content, e.g. "[]" or "[  ]"
+	emptyBracketsPattern = regexp.MustCompile(`\[\s*\]`)
+	// Pattern for dashes surrounded by multiple spaces, usually left after inner text is removed: " - "
+	dashesPattern        = regexp.MustCompile(`\s+-\s+`)
+	// Pattern for dashes at the end of the string
+	trailingDashPattern  = regexp.MustCompile(`(?i)\s*-\s*$`)
+	// Pattern for dashes at the beginning of the string
+	leadingDashPattern   = regexp.MustCompile(`^\s*-\s*`)
 
 	// Also pre-compile other patterns
 	seasonPattern     = regexp.MustCompile(`(?i)(?:season\.?\s*|s)(\d{1,2})`)
@@ -59,35 +75,30 @@ type SeasonInfo struct {
 	Name         string
 }
 
-func (s *Store) replaceMultiSeasonPattern(name string, targetSeason int) string {
+func (s *Store) cleanMultiSeasonString(name string) string {
 	result := name
 
-	// Apply each pre-compiled pattern removal
-	for _, re := range multiSeasonPatternsToRemove {
-		result = re.ReplaceAllString(result, " ")
+	for _, p := range multiSeasonCleanups {
+		result = p.ReplaceAllString(result, "")
 	}
 
-	// Apply cleanup patterns
-	result = strings.TrimSpace(result)
-	result = cleanupSpaces.ReplaceAllString(result, " ")
-	result = cleanupEmptyParens.ReplaceAllString(result, "")
-	result = cleanupTrailingDash.ReplaceAllString(result, "")
-	result = cleanupLeadingDash.ReplaceAllString(result, "")
-	result = cleanupEmptyParensDash.ReplaceAllString(result, "")
-	result = strings.TrimSpace(result)
+	result = emptyParensPattern.ReplaceAllString(result, "")
+	result = emptyBracketsPattern.ReplaceAllString(result, "")
+	result = dashesPattern.ReplaceAllString(result, " ")
+	result = trailingDashPattern.ReplaceAllString(result, "")
+	result = leadingDashPattern.ReplaceAllString(result, "")
 
-	s.logger.Debug().Msgf("Applied pattern removal and cleanup: %s -> %s", name, result)
+	result = strings.Join(strings.Fields(result), " ")
 
-	// Unconditionally insert season info into the cleaned name
-	return s.insertSeasonIntoName(result, targetSeason)
+	return strings.TrimSpace(result)
+}
+
+func (s *Store) replaceMultiSeasonPattern(name string, targetSeason int) string {
+	cleaned := s.cleanMultiSeasonString(name)
+	return s.insertSeasonIntoName(cleaned, targetSeason)
 }
 
 func (s *Store) insertSeasonIntoName(name string, seasonNum int) string {
-	// Check if season info already exists
-	if seasonPattern.MatchString(name) {
-		return name // Already has season info, keep as is
-	}
-
 	// Try to find a good insertion point (before quality indicators)
 	if loc := qualityIndicators.FindStringIndex(name); loc != nil {
 		// Insert season before quality info
