@@ -22,26 +22,22 @@ import (
 
 // Multi-season detection patterns
 var (
-	// Pre-compiled patterns for multi-season replacement
-	multiSeasonReplacements = []multiSeasonPattern{
-		// S01-08 -> S01 (or whatever target season)
-		{regexp.MustCompile(`(?i)S(\d{1,2})-\d{1,2}`), "S%02d"},
-
-		// S01-S08 -> S01
-		{regexp.MustCompile(`(?i)S(\d{1,2})-S\d{1,2}`), "S%02d"},
-
-		// Season 1-8 -> Season 1
-		{regexp.MustCompile(`(?i)Season\.?\s*\d{1,2}-\d{1,2}`), "Season %02d"},
-
-		// Seasons 1-8 -> Season 1
-		{regexp.MustCompile(`(?i)Seasons\.?\s*\d{1,2}-\d{1,2}`), "Season %02d"},
-
-		// Complete Series -> Season X
-		{regexp.MustCompile(`(?i)Complete\.?Series`), "Season %02d"},
-
-		// All Seasons -> Season X
-		{regexp.MustCompile(`(?i)All\.?Seasons?`), "Season %02d"},
+	// Pre-compiled patterns for multi-season removal
+	multiSeasonPatternsToRemove = []*regexp.Regexp{
+		regexp.MustCompile(`(?i)\(?\s*s\d{1,2}\s*-\s*s?\d{1,2}\s*\)?`),                 // S01-08, S01-S08, S01 - S08, S01 - 11
+		regexp.MustCompile(`(?i)\(?\s*seasons?\s*\d{1,2}\s*(?:-|to)\s*\d{1,2}\s*\)?`), // Season 1-8, Seasons 1 - 8, seasons 1 to 3, (Season 1-3)
+		regexp.MustCompile(`(?i)\(?\s*\d{1,2}\s*-\s*\d{1,2}\s*seasons?\s*\)?`),        // 1-6 Seasons
+		regexp.MustCompile(`(?i)complete\.?series`),
+		regexp.MustCompile(`(?i)all\.?seasons?`),
+		regexp.MustCompile(`(?i)\+\s*(?:extras|specials)`),
 	}
+
+	// Pre-compiled cleanup patterns
+	cleanupSpaces        = regexp.MustCompile(`\s+`)
+	cleanupEmptyParens   = regexp.MustCompile(`\(\s*\)`)
+	cleanupEmptyParensDash = regexp.MustCompile(`\(\s*-\s*\)`)
+	cleanupTrailingDash  = regexp.MustCompile(`\s*-\s*$`)
+	cleanupLeadingDash   = regexp.MustCompile(`^\s*-\s*`)
 
 	// Also pre-compile other patterns
 	seasonPattern     = regexp.MustCompile(`(?i)(?:season\.?\s*|s)(\d{1,2})`)
@@ -56,11 +52,6 @@ var (
 	}
 )
 
-type multiSeasonPattern struct {
-	pattern     *regexp.Regexp
-	replacement string
-}
-
 type SeasonInfo struct {
 	SeasonNumber int
 	Files        []types.File
@@ -71,17 +62,23 @@ type SeasonInfo struct {
 func (s *Store) replaceMultiSeasonPattern(name string, targetSeason int) string {
 	result := name
 
-	// Apply each pre-compiled pattern replacement
-	for _, msp := range multiSeasonReplacements {
-		if msp.pattern.MatchString(result) {
-			replacement := fmt.Sprintf(msp.replacement, targetSeason)
-			result = msp.pattern.ReplaceAllString(result, replacement)
-			s.logger.Debug().Msgf("Applied pattern replacement: %s -> %s", name, result)
-			return result
-		}
+	// Apply each pre-compiled pattern removal
+	for _, re := range multiSeasonPatternsToRemove {
+		result = re.ReplaceAllString(result, " ")
 	}
 
-	// If no multi-season pattern found, try to insert season info intelligently
+	// Apply cleanup patterns
+	result = strings.TrimSpace(result)
+	result = cleanupSpaces.ReplaceAllString(result, " ")
+	result = cleanupEmptyParens.ReplaceAllString(result, "")
+	result = cleanupTrailingDash.ReplaceAllString(result, "")
+	result = cleanupLeadingDash.ReplaceAllString(result, "")
+	result = cleanupEmptyParensDash.ReplaceAllString(result, "")
+	result = strings.TrimSpace(result)
+
+	s.logger.Debug().Msgf("Applied pattern removal and cleanup: %s -> %s", name, result)
+
+	// Unconditionally insert season info into the cleaned name
 	return s.insertSeasonIntoName(result, targetSeason)
 }
 
