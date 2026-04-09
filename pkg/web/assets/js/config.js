@@ -109,6 +109,14 @@ class ConfigManager {
         if (config.allowed_file_types && Array.isArray(config.allowed_file_types)) {
             document.querySelector('[name="allowed_file_types"]').value = config.allowed_file_types.join(', ');
         }
+
+        // Handle multi-season cleanups
+        if (config.multi_season_cleanups && Array.isArray(config.multi_season_cleanups)) {
+            window.multiSeasonCleanups = config.multi_season_cleanups;
+            document.getElementById('multiSeasonCleanupsDisplay').value = config.multi_season_cleanups.join('\n');
+        } else {
+            window.multiSeasonCleanups = [];
+        }
     }
 
     populateQBittorrentSettings(qbitConfig) {
@@ -1078,6 +1086,8 @@ class ConfigManager {
             discord_webhook_url: document.getElementById('discordWebhookUrl').value,
             allowed_file_types: document.getElementById('allowedExtensions').value
                 .split(',').map(ext => ext.trim()).filter(Boolean),
+            multi_season_cleanups: document.getElementById('multiSeasonCleanupsDisplay').value
+                .split('\n').map(ext => ext.trim()).filter(Boolean),
             min_file_size: document.getElementById('minFileSize').value,
             max_file_size: document.getElementById('maxFileSize').value,
             remove_stalled_after: document.getElementById('removeStalledAfter').value,
