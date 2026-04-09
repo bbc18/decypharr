@@ -79,6 +79,13 @@ func GetMagnetFromUrl(url string, rmTrackerUrls bool) (*Magnet, error) {
 	} else if strings.HasPrefix(url, "http") {
 		return OpenMagnetHttpURL(url, rmTrackerUrls)
 	}
+
+	// Check if it's a raw info hash
+	if hash, err := processInfoHash(url); err == nil {
+		magnetLink := fmt.Sprintf("magnet:?xt=urn:btih:%s", hash)
+		return GetMagnetInfo(magnetLink, rmTrackerUrls)
+	}
+
 	return nil, fmt.Errorf("invalid url")
 }
 
