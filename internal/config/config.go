@@ -49,14 +49,14 @@ type Debrid struct {
 }
 
 type QBitTorrent struct {
-	Username          	string   `json:"username,omitempty"`
-	Password          	string   `json:"password,omitempty"`
-	Port              	string   `json:"port,omitempty"` // deprecated
-	DownloadFolder    	string   `json:"download_folder,omitempty"`
-	Categories        	[]string `json:"categories,omitempty"`
-	RefreshInterval   	int      `json:"refresh_interval,omitempty"`
-	SkipPreCache      	bool     `json:"skip_pre_cache,omitempty"`
-	MaxDownloads      	int      `json:"max_downloads,omitempty"`
+	Username            string   `json:"username,omitempty"`
+	Password            string   `json:"password,omitempty"`
+	Port                string   `json:"port,omitempty"` // deprecated
+	DownloadFolder      string   `json:"download_folder,omitempty"`
+	Categories          []string `json:"categories,omitempty"`
+	RefreshInterval     int      `json:"refresh_interval,omitempty"`
+	SkipPreCache        bool     `json:"skip_pre_cache,omitempty"`
+	MaxDownloads        int      `json:"max_downloads,omitempty"`
 	AlwaysRmTrackerUrls bool     `json:"always_rm_tracker_urls,omitempty"`
 }
 
@@ -138,23 +138,24 @@ type Config struct {
 	URLBase     string `json:"url_base,omitempty"`
 	Port        string `json:"port,omitempty"`
 
-	LogLevel           string      `json:"log_level,omitempty"`
-	Debrids            []Debrid    `json:"debrids,omitempty"`
-	QBitTorrent        QBitTorrent `json:"qbittorrent,omitempty"`
-	Arrs               []Arr       `json:"arrs,omitempty"`
-	Repair             Repair      `json:"repair,omitempty"`
-	WebDav             WebDav      `json:"webdav,omitempty"`
-	Rclone             Rclone      `json:"rclone,omitempty"`
-	AllowedExt         []string    `json:"allowed_file_types,omitempty"`
-	MinFileSize        string      `json:"min_file_size,omitempty"` // Minimum file size to download, 10MB, 1GB, etc
-	MaxFileSize        string      `json:"max_file_size,omitempty"` // Maximum file size to download (0 means no limit)
-	Path               string      `json:"-"`                       // Path to save the config file
-	UseAuth            bool        `json:"use_auth,omitempty"`
-	Auth               *Auth       `json:"-"`
-	DiscordWebhook     string      `json:"discord_webhook_url,omitempty"`
-	RemoveStalledAfter string      `json:"remove_stalled_after,omitzero"`
-	CallbackURL        string      `json:"callback_url,omitempty"`
-	EnableWebdavAuth   bool        `json:"enable_webdav_auth,omitempty"`
+	LogLevel            string      `json:"log_level,omitempty"`
+	Debrids             []Debrid    `json:"debrids,omitempty"`
+	QBitTorrent         QBitTorrent `json:"qbittorrent,omitempty"`
+	Arrs                []Arr       `json:"arrs,omitempty"`
+	Repair              Repair      `json:"repair,omitempty"`
+	WebDav              WebDav      `json:"webdav,omitempty"`
+	Rclone              Rclone      `json:"rclone,omitempty"`
+	AllowedExt          []string    `json:"allowed_file_types,omitempty"`
+	MultiSeasonCleanups []string    `json:"multi_season_cleanups,omitempty"`
+	MinFileSize         string      `json:"min_file_size,omitempty"` // Minimum file size to download, 10MB, 1GB, etc
+	MaxFileSize         string      `json:"max_file_size,omitempty"` // Maximum file size to download (0 means no limit)
+	Path                string      `json:"-"`                       // Path to save the config file
+	UseAuth             bool        `json:"use_auth,omitempty"`
+	Auth                *Auth       `json:"-"`
+	DiscordWebhook      string      `json:"discord_webhook_url,omitempty"`
+	RemoveStalledAfter  string      `json:"remove_stalled_after,omitzero"`
+	CallbackURL         string      `json:"callback_url,omitempty"`
+	EnableWebdavAuth    bool        `json:"enable_webdav_auth,omitempty"`
 }
 
 func (c *Config) JsonFile() string {
@@ -408,6 +409,22 @@ func (c *Config) setDefaults() {
 
 	if len(c.AllowedExt) == 0 {
 		c.AllowedExt = getDefaultExtensions()
+	}
+
+	if len(c.MultiSeasonCleanups) == 0 {
+		c.MultiSeasonCleanups = []string{
+			`(?i)\bs\d{1,2}\s*-\s*s?\d{1,2}\b ## Matches season ranges using 'S': S01-S08, S1-8, S01 - 08`,
+			`(?i)\bseasons?\.?\s*\d{1,2}\s*(?:-|to)\s*\d{1,2}\b ## Matches season ranges using 'Season': Season 1-8, Seasons 1 to 3`,
+			`(?i)\b\d{1,2}\s*(?:-|to)\s*\d{1,2}\s*seasons?\b ## Matches reverse season ranges: 1-6 Seasons`,
+			`(?i)\bcomplete\.?\s*series\b ## Matches strings representing the entirety of a show: Complete Series`,
+			`(?i)\ball\.?\s*seasons?\b ## Matches strings representing the entirety of a show: All Seasons`,
+			`(?i)\+\s*(?:extras|specials)\b ## Matches extra/special content descriptors: + Extras, + Specials`,
+			`(?i)\(?\b\d{4}\s*-\s*\d{4}\b\)? ## Matches year ranges representing seasons: 2004-2010 or (1999-2002)`,
+			`(?i)\bseason\.?\s*\d{1,2}\b ## Matches trailing/single season text to remove artifacts: Season 1, Season 02`,
+			`(?i)\bs\d{1,2}\b ## Matches single season codes to remove artifacts: S01, S1`,
+			`(?i)COMPLETE SEASONS ## Matches 'COMPLETE SEASONS' text`,
+			`(?i)Complete Box Set ## Matches 'Complete Box Set' text`,
+		}
 	}
 
 	c.Port = cmp.Or(c.Port, c.QBitTorrent.Port)

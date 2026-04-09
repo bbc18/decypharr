@@ -128,6 +128,16 @@
                                         <span class="label-text-alt">Comma-separated list of allowed file extensions</span>
                                     </div>
                                 </div>
+
+                                <div class="form-control">
+                                    <label class="label" for="multiSeasonCleanupsDisplay">
+                                        <span class="label-text font-medium">Multi-Season Cleaning Regexes</span>
+                                    </label>
+                                    <textarea class="textarea textarea-bordered cursor-pointer" id="multiSeasonCleanupsDisplay" readonly onclick="openRegexModal()" placeholder="Click to edit regexes..."></textarea>
+                                    <div class="label">
+                                        <span class="label-text-alt">Patterns used to clean season packs</span>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -791,7 +801,195 @@
     </div>
 </div>
 
+<dialog id="regexModal" class="modal">
+    <div class="modal-box w-11/12 max-w-5xl flex flex-col h-[90vh]">
+        <h3 class="font-bold text-lg mb-4">Edit Multi-Season Cleaning Regexes</h3>
+        <p class="text-sm text-base-content/70 mb-4">
+            One regex per line. Use <code>##</code> to add a comment (ignored during processing).
+            Comments will be highlighted in the preview below.
+        </p>
+
+        <div class="flex-1 flex flex-col gap-4 overflow-hidden">
+            <div class="form-control flex-1 flex flex-col">
+                <label class="label">
+                    <span class="label-text font-medium">Regex List</span>
+                </label>
+                <!-- Rendered output to allow for coloring (syncs with hidden textarea) -->
+                <div class="relative flex-1 bg-base-200 rounded-box border border-base-300 overflow-hidden font-mono text-sm leading-relaxed" style="min-height: 200px;">
+                    <div id="regexHighlight" class="absolute inset-0 p-4 whitespace-pre-wrap overflow-hidden text-base-content pointer-events-none break-all" aria-hidden="true" style="color: transparent;"></div>
+                    <textarea id="regexEditor" class="absolute inset-0 p-4 w-full h-full bg-transparent resize-none outline-none focus:outline-none break-all" spellcheck="false" onscroll="syncScroll()" oninput="updateRegexPreview()"></textarea>
+                </div>
+            </div>
+
+            <div class="divider my-0"></div>
+
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text font-medium">Test Input String</span>
+                </label>
+                <input type="text" id="regexTestInput" class="input input-bordered" placeholder="Enter a string to test..." oninput="updateRegexPreview()">
+            </div>
+
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text font-medium">Live Preview (Cleaned Output)</span>
+                </label>
+                <div id="regexTestResult" class="p-4 bg-base-300 rounded-box font-mono min-h-[3rem] text-success">
+                    <span class="opacity-50 text-base-content">Enter test string above to see preview</span>
+                </div>
+                <div class="label">
+                    <span class="label-text-alt">Note: Hardcoded cleanup patterns are also applied in this preview.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-action mt-auto flex justify-between items-center w-full">
+            <button type="button" class="btn btn-outline" onclick="restoreRegexDefaults()">Restore Defaults</button>
+            <div class="flex gap-2">
+                <button type="button" class="btn" onclick="closeRegexModal()">Discard changed</button>
+                <button type="button" class="btn btn-primary" onclick="saveRegexModal()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
 <script>
+    // Regex Modal State
+    const defaultRegexes = [
+        `(?i)\\bs\\d{1,2}\\s*-\\s*s?\\d{1,2}\\b ## Matches season ranges using 'S': S01-S08, S1-8, S01 - 08`,
+        `(?i)\\bseasons?\\.?\\s*\\d{1,2}\\s*(?:-|to)\\s*\\d{1,2}\\b ## Matches season ranges using 'Season': Season 1-8, Seasons 1 to 3`,
+        `(?i)\\b\\d{1,2}\\s*(?:-|to)\\s*\\d{1,2}\\s*seasons?\\b ## Matches reverse season ranges: 1-6 Seasons`,
+        `(?i)\\bcomplete\\.?\\s*series\\b ## Matches strings representing the entirety of a show: Complete Series`,
+        `(?i)\\ball\\.?\\s*seasons?\\b ## Matches strings representing the entirety of a show: All Seasons`,
+        `(?i)\\+\\s*(?:extras|specials)\\b ## Matches extra/special content descriptors: + Extras, + Specials`,
+        `(?i)\\(?\\b\\d{4}\\s*-\\s*\\d{4}\\b\\)? ## Matches year ranges representing seasons: 2004-2010 or (1999-2002)`,
+        `(?i)\\bseason\\.?\\s*\\d{1,2}\\b ## Matches trailing/single season text to remove artifacts: Season 1, Season 02`,
+        `(?i)\\bs\\d{1,2}\\b ## Matches single season codes to remove artifacts: S01, S1`,
+        `(?i)COMPLETE SEASONS ## Matches 'COMPLETE SEASONS' text`,
+        `(?i)Complete Box Set ## Matches 'Complete Box Set' text`
+    ];
+
+    const hardcodedPatterns = [
+        /\(\s*\)/g,       // emptyParensPattern
+        /\[\s*\]/g,       // emptyBracketsPattern
+        /\s+-\s+/g,       // dashesPattern (replaced with space)
+        /\s*-\s*$/i,      // trailingDashPattern
+        /^\s*-\s*/        // leadingDashPattern
+    ];
+
+    function openRegexModal() {
+        const modal = document.getElementById('regexModal');
+        const editor = document.getElementById('regexEditor');
+        const display = document.getElementById('multiSeasonCleanupsDisplay');
+
+        editor.value = display.value || defaultRegexes.join('\n');
+
+        updateRegexHighlight();
+        updateRegexPreview();
+        modal.showModal();
+    }
+
+    function closeRegexModal() {
+        const modal = document.getElementById('regexModal');
+        modal.close();
+    }
+
+    function saveRegexModal() {
+        const editor = document.getElementById('regexEditor');
+        const display = document.getElementById('multiSeasonCleanupsDisplay');
+        display.value = editor.value.trim();
+        closeRegexModal();
+    }
+
+    function restoreRegexDefaults() {
+        if (confirm("Are you sure you want to restore the default regex list? This will overwrite your current changes.")) {
+            document.getElementById('regexEditor').value = defaultRegexes.join('\n');
+            updateRegexHighlight();
+            updateRegexPreview();
+        }
+    }
+
+    function syncScroll() {
+        const editor = document.getElementById('regexEditor');
+        const highlight = document.getElementById('regexHighlight');
+        highlight.scrollTop = editor.scrollTop;
+        highlight.scrollLeft = editor.scrollLeft;
+    }
+
+    function updateRegexHighlight() {
+        const editor = document.getElementById('regexEditor');
+        const highlight = document.getElementById('regexHighlight');
+        const text = editor.value;
+
+        // Escape HTML
+        const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+        // Highlight comments
+        const highlighted = escaped.split('\n').map(line => {
+            const commentIndex = line.indexOf(' ##');
+            if (commentIndex !== -1) {
+                const regexPart = line.substring(0, commentIndex);
+                const commentPart = line.substring(commentIndex);
+                return regexPart + '<span class="text-success opacity-80">' + commentPart + '</span>';
+            }
+            return line;
+        }).join('\n');
+
+        // Append a break to allow trailing newlines to display properly
+        highlight.innerHTML = highlighted + '<br>';
+    }
+
+    function updateRegexPreview() {
+        updateRegexHighlight();
+
+        const editor = document.getElementById('regexEditor');
+        const testInput = document.getElementById('regexTestInput');
+        const resultDisplay = document.getElementById('regexTestResult');
+
+        let testStr = testInput.value;
+        if (!testStr) {
+            resultDisplay.innerHTML = '<span class="opacity-50 text-base-content">Enter test string above to see preview</span>';
+            return;
+        }
+
+        const lines = editor.value.split('\n');
+
+        try {
+            // Apply user-defined regexes
+            lines.forEach(line => {
+                let patternStr = line.split(' ##')[0].trim();
+                if (!patternStr) return;
+
+                // Go's (?i) translates to JS 'i' flag
+                let flags = 'g';
+                if (patternStr.startsWith('(?i)')) {
+                    flags += 'i';
+                    patternStr = patternStr.substring(4);
+                }
+
+                const regex = new RegExp(patternStr, flags);
+                testStr = testStr.replace(regex, '');
+            });
+
+            // Apply hardcoded patterns (mimicking Go's cleanMultiSeasonString)
+            testStr = testStr.replace(hardcodedPatterns[0], ''); // empty parens
+            testStr = testStr.replace(hardcodedPatterns[1], ''); // empty brackets
+            testStr = testStr.replace(hardcodedPatterns[2], ' '); // dashes to space
+            testStr = testStr.replace(hardcodedPatterns[3], ''); // trailing dash
+            testStr = testStr.replace(hardcodedPatterns[4], ''); // leading dash
+
+            // Re-join with single spaces (mimics strings.Join(strings.Fields(result), " "))
+            testStr = testStr.split(/\s+/).join(' ').trim();
+
+            resultDisplay.textContent = testStr || '(empty string)';
+        } catch (e) {
+            resultDisplay.innerHTML = `<span class="text-error">Invalid Regex: ${e.message}</span>`;
+        }
+    }
+
     // Tab Navigation Handler
     document.addEventListener('DOMContentLoaded', function() {
         window.configManager = new ConfigManager();
