@@ -196,3 +196,39 @@ func TestGetMagnetFromUrl_TorrentLink_StripFalse(t *testing.T) {
 
 	testMagnetFromHttpTorrent(t, "ubuntu-25.04-desktop-amd64.iso.torrent", false, expectedInfoHash, expectedName, expectedLink, expectedTrackerCount)
 }
+
+func TestGetMagnetFromUrl_RawInfoHash_Upper(t *testing.T) {
+	expectedInfoHash := "62a4d9e139f3315f8716bcccca0cc984a9809da1"
+	expectedLink := "magnet:?xt=urn:btih:62a4d9e139f3315f8716bcccca0cc984a9809da1"
+
+	url := "62A4D9E139F3315F8716BCCCCA0CC984A9809DA1"
+	magnet, err := GetMagnetFromUrl(url, false)
+	if err != nil {
+		t.Fatalf("GetMagnetFromUrl failed: %v", err)
+	}
+
+	if magnet.InfoHash != expectedInfoHash {
+		t.Errorf("Expected info hash %s, got %s", expectedInfoHash, magnet.InfoHash)
+	}
+	if magnet.Link != expectedLink {
+		t.Errorf("Expected link %s, got %s", expectedLink, magnet.Link)
+	}
+}
+
+func TestGetMagnetFromUrl_RawInfoHash_Lower(t *testing.T) {
+	expectedInfoHash := "62a4d9e139f3315f8716bcccca0cc984a9809da1"
+	expectedLink := "magnet:?xt=urn:btih:62a4d9e139f3315f8716bcccca0cc984a9809da1"
+
+	url := "62a4d9e139f3315f8716bcccca0cc984a9809da1"
+	magnet, err := GetMagnetFromUrl(url, false)
+	if err != nil {
+		t.Fatalf("GetMagnetFromUrl failed: %v", err)
+	}
+
+	if magnet.InfoHash != expectedInfoHash {
+		t.Errorf("Expected info hash %s, got %s", expectedInfoHash, magnet.InfoHash)
+	}
+	if magnet.Link != expectedLink {
+		t.Errorf("Expected link %s, got %s", expectedLink, magnet.Link)
+	}
+}
